@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package wallet;
+option go_package = "github.com/LightningPeach/peach-secure-server/pb/wallet";
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+//import "github.com/mwitkow/go-proto-validators/validator.proto";
+
+message CreateAccountRequest {
+    string name = 1 [json_name = "name"];
+}
+
+message CreateAccountResponse {
+    string id = 1 [json_name = "id"];
+}
+
+message GetAccountRequest {
+    string id = 1 [json_name = "id"];
+}
+
+message Account {
+    string id = 1 [json_name = "id"];
+    string name = 2 [json_name = "name"];
+}
+
+message ListAccountsResponse {
+    repeated Account accounts = 1 [json_name = "accounts"];
+}
+
+message CreatePaymentRequest {
+    string source = 1 [json_name = "source"];
+    string destination = 2 [json_name = "destination"];
+    uint64 amount = 3 [json_name = "amount"];
+}
+
+message CreatePaymentResponse {
+    string id = 1 [json_name = "id"];
+}
+
+message ListPaymentsRequest {
+    string account_id = 1 [json_name = "account_id"];
+}
+
+message GetPaymentRequest {
+    string id = 1 [json_name = "id"];
+}
+
+message Payment {
+    string id = 1 [json_name = "id"];
+    string source = 2 [json_name = "source"];
+    string destination = 3 [json_name = "destination"];
+    uint64 amount = 4 [json_name = "amount"];
+}
+
+message ListPaymentsResponse {
+    repeated Payment payments = 1 [json_name = "payments"];
+}
+
+service WalletService {
+    rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/account"
+            body: "*"
+        };
+    }
+
+    rpc CreateRootAccount(google.protobuf.Empty) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/api/v1/account/root"
+            body: "*"
+        };
+    }
+
+    rpc GetAccount(GetAccountRequest) returns (Account) {
+        option (google.api.http) = {
+            get: "/api/v1/account/{id}"
+        };
+    }
+
+    rpc ListAccounts(google.protobuf.Empty) returns (ListAccountsResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/list/account"
+        };
+    }
+
+    rpc CreatePayment(CreatePaymentRequest) returns (CreatePaymentResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/payment"
+            body: "*"
+        };
+    }
+
+    rpc GetPayment(GetPaymentRequest) returns (Payment) {
+        option (google.api.http) = {
+            get: "/api/v1/payment/{id}"
+        };
+    }
+
+    rpc ListPayments(ListPaymentsRequest) returns (ListPaymentsResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/list/payment"
+        };
+    }
+}
