@@ -118,14 +118,6 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "account_id",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          }
-        ],
         "tags": [
           "WalletService"
         ]

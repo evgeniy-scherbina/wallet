@@ -32,27 +32,64 @@ func TestPaymentCreation(t *testing.T) {
 	}
 	listAccountIDs := accountIDs.ToSlice()
 
-	// check create payment method
+	// check create/get payment(root account -> std account) method
 	paymentIDs := test.NewCounterMap()
 	for _, accountID := range listAccountIDs {
+		// create payment
 		id, err := client.CreatePayment(&pbw.CreatePaymentRequest{
 			Source:      "root",
 			Destination: accountID,
-			Amount:      test.DefaultPaymentAmount,
+			Amount:      test.DefaultInitialBalance,
 		})
 		r.Nil(err)
 		r.NotEmpty(id)
 
 		paymentIDs.Inc(id)
-	}
-	listPaymentIDs := paymentIDs.ToSlice()
 
-	// check get account method
-	for _, id := range listPaymentIDs {
+		// get payment
 		payment, err := client.GetPayment(id)
 		r.Nil(err)
 
 		r.Equal("root", payment.Source)
+		r.Equal(accountID, payment.Destination)
+		r.Equal(uint64(test.DefaultInitialBalance), payment.Amount)
+	}
+
+	// check create/get payment(std account -> std account) method
+	paymentNum := 4
+	for i := 0; i < paymentNum; i++ {
+		// create payment
+		source := listAccountIDs[i % 2]
+		dest := listAccountIDs[(i + 1) % 2]
+		id, err := client.CreatePayment(&pbw.CreatePaymentRequest{
+			Source:      source,
+			Destination: dest,
+			Amount:      test.DefaultPaymentAmount,
+		})
+
+		r.Nil(err)
+		r.NotEmpty(id)
+
+		paymentIDs.Inc(id)
+
+		// get payment
+		payment, err := client.GetPayment(id)
+		r.Nil(err)
+
+		r.Equal(source, payment.Source)
+		r.Equal(dest, payment.Destination)
 		r.Equal(uint64(test.DefaultPaymentAmount), payment.Amount)
+	}
+
+	// check list payments method
+	{
+		payments, err := client.ListPayments()
+		r.Nil(err)
+		allIDs := test.NewCounterMap()
+		for _, payment := range payments {
+			allIDs.Inc(payment.Id)
+		}
+
+		r.True(allIDs.Contains(paymentIDs))
 	}
 }

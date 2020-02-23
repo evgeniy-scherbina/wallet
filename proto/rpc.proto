@@ -38,10 +38,6 @@ message CreatePaymentResponse {
     string id = 1 [json_name = "id"];
 }
 
-message ListPaymentsRequest {
-    string account_id = 1 [json_name = "account_id"];
-}
-
 message GetPaymentRequest {
     string id = 1 [json_name = "id"];
 }
@@ -97,7 +93,7 @@ service WalletService {
         };
     }
 
-    rpc ListPayments(ListPaymentsRequest) returns (ListPaymentsResponse) {
+    rpc ListPayments(google.protobuf.Empty) returns (ListPaymentsResponse) {
         option (google.api.http) = {
             get: "/api/v1/list/payment"
         };

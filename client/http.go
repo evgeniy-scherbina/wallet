@@ -28,6 +28,10 @@ type Payment struct {
 	Amount      uint64 `json:"amount,string"`
 }
 
+type ListPaymentsResponse struct {
+	Payments []*Payment `json:"payments"`
+}
+
 type httpClient struct {
 	httpAddress string
 }
@@ -204,4 +208,30 @@ func (httpClient *httpClient) GetPayment(id string) (*Payment, error) {
 		return nil, err
 	}
 	return &resp, nil
+}
+
+func (httpClient *httpClient) ListPayments() ([]*Payment, error) {
+	url := httpClient.httpAddress + listPaymentEndpoint
+
+	httpReq, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	httpResp, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		return nil, err
+	}
+	body, err := ioutil.ReadAll(httpResp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if httpResp.StatusCode != 200 {
+		return nil, fmt.Errorf("wrong status code, want 200, got %v, details: %s", httpResp.StatusCode, body)
+	}
+
+	var resp ListPaymentsResponse
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return nil, err
+	}
+	return resp.Payments, nil
 }
