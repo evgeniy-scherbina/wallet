@@ -53,6 +53,14 @@ message ListPaymentsResponse {
     repeated Payment payments = 1 [json_name = "payments"];
 }
 
+message GetBalanceRequest {
+    string account_id = 1 [json_name = "account_id"];
+}
+
+message GetBalanceResponse {
+    uint64 amount = 1 [json_name = "amount"];
+}
+
 service WalletService {
     rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse) {
         option (google.api.http) = {
@@ -96,6 +104,12 @@ service WalletService {
     rpc ListPayments(google.protobuf.Empty) returns (ListPaymentsResponse) {
         option (google.api.http) = {
             get: "/api/v1/list/payment"
+        };
+    }
+
+    rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/account/{account_id}/balance"
         };
     }
 }

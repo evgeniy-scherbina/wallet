@@ -155,3 +155,48 @@ func (db *DB) ListPayments() ([]*Payment, error) {
 
 	return payments, nil
 }
+
+func (db *DB) GetBalance(accountId string) (uint64, error) {
+	deposit, err := db.deposit(accountId)
+	if err != nil {
+		return 0, err
+	}
+
+	credit, err := db.credit(accountId)
+	if err != nil {
+		return 0, err
+	}
+	_ = credit
+
+	return deposit, nil
+}
+
+func (db *DB) deposit(accountId string) (uint64, error) {
+	row := db.inner.QueryRow("SELECT SUM(amount) FROM payments WHERE destination = $1", accountId)
+
+	var sum sql.NullInt64
+	if err := row.Scan(&sum); err != nil {
+		return 0, err
+	}
+
+	if sum.Valid {
+		return uint64(sum.Int64), nil
+	} else {
+		return 0, nil
+	}
+}
+
+func (db *DB) credit(accountId string) (uint64, error) {
+	row := db.inner.QueryRow("SELECT SUM(amount) FROM payments WHERE source = $1", accountId)
+
+	var sum sql.NullInt64
+	if err := row.Scan(&sum); err != nil {
+		return 0, err
+	}
+
+	if sum.Valid {
+		return uint64(sum.Int64), nil
+	} else {
+		return 0, nil
+	}
+}

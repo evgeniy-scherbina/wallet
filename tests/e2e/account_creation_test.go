@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -12,6 +13,11 @@ import (
 func TestAccountCreation(t *testing.T) {
 	r := require.New(t)
 	client := wclient.NewHTTPClient(test.DefaultHttpAddress)
+
+	// create root account
+	if err := client.CreateRootAccount(); err != nil && !strings.Contains(err.Error(), "can't create root account") {
+		r.FailNow(err.Error())
+	}
 
 	// check create account method
 	accountNum := 2

@@ -105,7 +105,7 @@ func (ws *WalletServer) GetPayment(ctx context.Context, req *pbw.GetPaymentReque
 	return payment.ToProto(), nil
 }
 
-func (ws *WalletServer) ListPayments(ctx context.Context, req *pbw.ListPaymentsRequest) (*pbw.ListPaymentsResponse, error) {
+func (ws *WalletServer) ListPayments(ctx context.Context, _ *empty.Empty) (*pbw.ListPaymentsResponse, error) {
 	payments, err := ws.db.ListPayments()
 	if err != nil {
 		err = fmt.Errorf("can't list payments: %v", err)
@@ -119,4 +119,17 @@ func (ws *WalletServer) ListPayments(ctx context.Context, req *pbw.ListPaymentsR
 	}
 
 	return resp, nil
+}
+
+func (ws *WalletServer) GetBalance(ctx context.Context, req *pbw.GetBalanceRequest) (*pbw.GetBalanceResponse, error) {
+	balance, err := ws.db.GetBalance(req.AccountId)
+	if err != nil {
+		err = fmt.Errorf("can't get balance: %v", err)
+		log.Error(err)
+		return nil, err
+	}
+
+	return &pbw.GetBalanceResponse{
+		Amount: balance,
+	}, nil
 }

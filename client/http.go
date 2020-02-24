@@ -19,6 +19,8 @@ const (
 	createPaymentEndpoint = "/api/v1/payment"
 	getPaymentEndpoint    = "/api/v1/payment"
 	listPaymentEndpoint   = "/api/v1/list/payment"
+
+	getBalanceEndpointTmpl = "/api/v1/account/%v/balance"
 )
 
 type Payment struct {
@@ -30,6 +32,10 @@ type Payment struct {
 
 type ListPaymentsResponse struct {
 	Payments []*Payment `json:"payments"`
+}
+
+type GetBalanceResponse struct {
+	Amount uint64 `json:"amount,string"`
 }
 
 type httpClient struct {
@@ -234,4 +240,31 @@ func (httpClient *httpClient) ListPayments() ([]*Payment, error) {
 		return nil, err
 	}
 	return resp.Payments, nil
+}
+
+func (httpClient *httpClient) GetBalance(id string) (uint64, error) {
+	endpoint := fmt.Sprintf(getBalanceEndpointTmpl, id)
+	url := httpClient.httpAddress + endpoint
+
+	httpReq, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return 0, err
+	}
+	httpResp, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		return 0, err
+	}
+	body, err := ioutil.ReadAll(httpResp.Body)
+	if err != nil {
+		return 0, err
+	}
+	if httpResp.StatusCode != 200 {
+		return 0, fmt.Errorf("wrong status code, want 200, got %v, details: %s", httpResp.StatusCode, body)
+	}
+
+	var resp GetBalanceResponse
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return 0, err
+	}
+	return resp.Amount, nil
 }

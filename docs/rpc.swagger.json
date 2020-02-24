@@ -67,6 +67,30 @@
         ]
       }
     },
+    "/api/v1/account/{account_id}/balance": {
+      "get": {
+        "operationId": "GetBalance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/walletGetBalanceResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "WalletService"
+        ]
+      }
+    },
     "/api/v1/account/{id}": {
       "get": {
         "operationId": "GetAccount",
@@ -222,6 +246,15 @@
       "properties": {
         "id": {
           "type": "string"
+        }
+      }
+    },
+    "walletGetBalanceResponse": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "string",
+          "format": "uint64"
         }
       }
     },

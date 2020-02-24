@@ -55,6 +55,14 @@ func TestPaymentCreation(t *testing.T) {
 		r.Equal(uint64(test.DefaultInitialBalance), payment.Amount)
 	}
 
+	// check get balance method
+	for _, accountID := range listAccountIDs {
+		balance, err := client.GetBalance(accountID)
+		r.Nil(err)
+
+		r.Equal(uint64(test.DefaultInitialBalance), balance)
+	}
+
 	// check create/get payment(std account -> std account) method
 	paymentNum := 4
 	for i := 0; i < paymentNum; i++ {
