@@ -78,6 +78,17 @@ func (ws *WalletServer) ListAccounts(ctx context.Context, _ *empty.Empty) (*pbw.
 }
 
 func (ws *WalletServer) CreatePayment(ctx context.Context, req *pbw.CreatePaymentRequest) (*pbw.CreatePaymentResponse, error) {
+	balance, err := ws.db.GetBalance(req.Source)
+	if err != nil {
+		err = fmt.Errorf("can't get balance: %v", err)
+		log.Error(err)
+		return nil, err
+	}
+	if balance < req.Amount {
+		log.Warn(ErrInsufficientFunds)
+		return nil, ErrInsufficientFunds
+	}
+
 	id, err := ws.db.PutPayment(&walletdb.Payment{
 		Source:      req.Source,
 		Destination: req.Destination,
