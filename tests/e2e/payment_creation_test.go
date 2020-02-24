@@ -87,6 +87,14 @@ func TestPaymentCreation(t *testing.T) {
 		r.Equal(source, payment.Source)
 		r.Equal(dest, payment.Destination)
 		r.Equal(uint64(test.DefaultPaymentAmount), payment.Amount)
+
+		sourceAccountBalance, err := client.GetBalance(source)
+		r.Nil(err)
+		destAccountBalance, err := client.GetBalance(dest)
+		r.Nil(err)
+
+		r.Equal(uint64(test.DefaultPaymentAmount - test.DefaultPaymentAmount), sourceAccountBalance)
+		r.Equal(uint64(test.DefaultPaymentAmount + test.DefaultPaymentAmount), destAccountBalance)
 	}
 
 	// check list payments method
