@@ -166,9 +166,8 @@ func (db *DB) GetBalance(accountId string) (uint64, error) {
 	if err != nil {
 		return 0, err
 	}
-	_ = credit
 
-	return deposit, nil
+	return deposit - credit, nil
 }
 
 func (db *DB) deposit(accountId string) (uint64, error) {

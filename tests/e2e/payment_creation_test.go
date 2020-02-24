@@ -100,4 +100,12 @@ func TestPaymentCreation(t *testing.T) {
 
 		r.True(allIDs.Contains(paymentIDs))
 	}
+
+	// check get balance method(after payments)
+	for _, accountID := range listAccountIDs {
+		balance, err := client.GetBalance(accountID)
+		r.Nil(err)
+
+		r.Equal(int64(test.DefaultInitialBalance), int64(balance))
+	}
 }
